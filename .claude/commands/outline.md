@@ -1,6 +1,6 @@
 ---
 description: 创作并保存小说大纲。支持交互对话模式和 --auto 多智能体头脑风暴自动生成模式。
-argument-hint: [--auto] [简短构思描述]
+argument-hint: [--auto] [--chapter=N] [简短构思描述]
 allowed-tools: Read, Write, Bash, Agent, WebSearch
 ---
 
@@ -23,8 +23,47 @@ allowed-tools: Read, Write, Bash, Agent, WebSearch
 ## 第二步：模式判断
 
 检查 `$ARGUMENTS` 是否包含 `--auto`：
+- 包含 `--chapter=N`（如 `--chapter=5`）→ 进入【单章补充模式】（优先级高于 --auto）
 - 包含 `--auto` → 进入【自动生成模式】
 - 不包含 → 进入【交互对话模式】
+
+---
+
+## 【单章补充模式】（--chapter=N）
+
+从 `$ARGUMENTS` 中提取 N 值（如 `--chapter=5` 则 N=5）。
+
+### 前置检查
+
+- 若 `outline/overview.md` 不存在：告知用户"需要先有整体大纲才能补充单章大纲，请先运行 `/outline` 或 `/outline --auto`"，停止执行。
+- 若 `outline/chapter-NN.md` 已存在：读取并展示现有内容概要，询问用户："已存在第 N 章大纲，是重写还是在此基础上修改？"
+
+### 读取上下文
+
+使用 Read 工具依次读取（若存在）：
+1. `outline/overview.md`（了解整体故事结构，确认第 N 章在全书中的位置）
+2. `outline/chapter-(N-1).md`（前章大纲，了解衔接需求）
+3. `outline/chapter-(N+1).md`（后章大纲，了解本章需要为其铺垫什么）
+
+从 `overview.md` 的"章节总览"表格中找到第 N 章对应记录，了解核心事件和情感基调。
+
+### 信息收集（最多2轮）
+
+基于已读取的上下文，向用户提问：
+
+**问题1**："第 N 章的核心事件具体如何展开？（请基于大纲概要补充细节）"
+
+**问题2**："有什么特别需要处理的衔接点、伏笔或人物状态变化？"
+
+### 生成并保存
+
+按【大纲标准格式】中 `outline/chapter-XX.md` 的格式生成完整单章大纲，重点填写：
+- "与前后章的衔接"部分（承接第 N-1 章、埋伏第 N+1 章）
+- "章末钩子"
+
+使用 Write 工具保存至 `outline/chapter-NN.md`（两位数零填充）。
+
+完成后告知用户："第 N 章大纲已保存至 `outline/chapter-NN.md`"。
 
 ---
 
