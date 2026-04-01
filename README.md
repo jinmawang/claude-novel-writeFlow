@@ -29,16 +29,65 @@
 
 ## 🚀 快速开始
 
-### 安装
+### 安装 Claude Code
 
-将本项目克隆到你的小说项目目录下：
+如果还没有安装 Claude Code，先完成以下步骤：
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/claude-novel-writeFlow.git my-novel
-cd my-novel
+# 安装 Claude Code CLI
+npm install -g @anthropic-ai/claude-code
+
+# 登录（首次使用需要）
+claude
 ```
 
-然后在 **Claude Code** 中打开该目录，三个斜杠命令即刻可用。
+或者直接下载 [Claude Code 桌面版](https://claude.ai/code)，安装后登录即可。
+
+---
+
+### 安装本插件
+
+**插件原理：** Claude Code 会自动识别项目目录下 `.claude/commands/` 文件夹中的 Markdown 文件，将其注册为可用的斜杠命令。安装本插件就是把这个文件夹放进你的小说项目目录。
+
+#### 方案一：新建小说项目（推荐）
+
+直接把本仓库作为你的小说项目目录使用：
+
+```bash
+# 克隆到你的小说目录（my-novel 改成你想要的名字）
+git clone https://github.com/YOUR_USERNAME/claude-novel-writeFlow.git my-novel
+cd my-novel
+
+# 用 Claude Code 打开
+claude .
+```
+
+打开后输入 `/` 即可看到 `/outline`、`/style`、`/write` 等命令出现在补全列表中，说明安装成功。
+
+#### 方案二：为已有项目添加插件
+
+如果你已经有一个小说项目目录，只需复制命令文件夹：
+
+```bash
+# 进入你已有的小说项目目录
+cd /path/to/your-novel
+
+# 复制命令文件夹
+git clone https://github.com/YOUR_USERNAME/claude-novel-writeFlow.git /tmp/writeflow
+cp -r /tmp/writeflow/.claude .
+rm -rf /tmp/writeflow
+
+# 用 Claude Code 打开
+claude .
+```
+
+#### 验证安装
+
+在 Claude Code 中输入 `/`，补全列表中出现以下命令即为安装成功：
+
+```
+/outline   /style   /write   /status   /export
+```
 
 ### 推荐工作流
 
