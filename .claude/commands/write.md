@@ -1,6 +1,6 @@
 ---
 description: 使用三智能体架构（写作+文风审核+衔接审核）写作指定章节，支持 --auto 连续写作模式。
-argument-hint: [章节号] [--words=3000] [--auto]
+argument-hint: [章节号] [--words=3000] [--auto] [--no-review]
 allowed-tools: Read, Write, Bash, Glob, Agent
 ---
 
@@ -79,6 +79,8 @@ allowed-tools: Read, Write, Bash, Glob, Agent
 7. `outline/chapter-(N+2).md`（后2章大纲，若存在）
 8. `chapters/chapter-(N-1).md`（前1章正文，若存在，用于连续性）
 9. `chapters/chapter-(N-2).md`（前2章正文，若存在，了解近期叙事节奏）
+
+> 路径格式：章节号 ≤ 99 用两位数零填充（`chapter-01.md`），章节号 ≥ 100 用三位数（`chapter-100.md`）。前序/后续章节路径同样遵循此规则。
 
 将所有读取到的内容整理为"写作素材包"，供后续智能体使用。
 
