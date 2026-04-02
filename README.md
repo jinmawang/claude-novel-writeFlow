@@ -204,6 +204,26 @@ outline/
 
 ---
 
+### `/context` — 上下文管理
+
+```
+/context [--init] [--rebuild]
+```
+
+| 参数 | 说明 |
+|------|------|
+| 无参数 | 自动模式：context 不存在则初始化，否则从已有章节重建 |
+| `--init` | 仅创建空的 context 文件，不分析章节 |
+| `--rebuild` | 清空并从全部已有章节重新提取，适合中途引入本功能时使用 |
+
+**日常使用无需手动运行**——每次 `/write` 完成后自动提取当章新增事实。
+
+以下情况需要手动运行：
+- 项目已有多章内容，首次引入 context 功能时：运行 `/context` 初始化
+- 发现 context 记录有误需要重建：运行 `/context --rebuild`
+
+---
+
 ### `/status` — 写作进度
 
 ```
@@ -252,6 +272,12 @@ your-novel-project/
 │
 ├── style-rules.md              # 写作风格规范（/style 生成）
 │
+├── context/                    # 上下文追踪（/write 自动维护）
+│   ├── characters.md           # 已确立人物细节
+│   ├── world.md                # 已确立世界设定
+│   ├── continuity.md           # 关键事件记录
+│   └── timeline.md             # 故事内时间线
+│
 └── chapters/                   # 章节正文（/write 生成）
     ├── chapter-01.md
     ├── chapter-02.md
@@ -280,6 +306,9 @@ your-novel-project/
 
 **关于自动模式**
 `/write --auto` 每章完成后都会暂停确认，你可以随时叫停、阅读已完成章节后再继续，不会失控狂奔。
+
+**关于上下文追踪**
+`context/` 文件夹由 `/write` 自动维护，记录正文中已确立的人物细节、世界设定、关键事件和时间线。Continuity Reviewer 会在每章审核时比对这些记录，防止前后矛盾。如果中途引入该功能（已有多章），记得先运行 `/context` 初始化存量章节的上下文。
 
 ---
 
