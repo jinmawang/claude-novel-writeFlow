@@ -87,6 +87,10 @@ allowed-tools: Read, Write, Bash, Glob, Agent
 7. `outline/chapter-(N+2).md`（后2章大纲，若存在）
 8. `chapters/chapter-(N-1).md`（前1章正文，若存在，用于连续性）
 9. `chapters/chapter-(N-2).md`（前2章正文，若存在，了解近期叙事节奏）
+10. `context/characters.md`（人物档案，若存在）
+11. `context/world.md`（世界设定，若存在）
+12. `context/continuity.md`（关键事件，若存在）
+13. `context/timeline.md`（故事时间线，若存在）
 
 > 路径格式：章节号 ≤ 99 用两位数零填充（`chapter-01.md`），章节号 ≥ 100 用三位数（`chapter-100.md`）。前序/后续章节路径同样遵循此规则。
 
@@ -99,6 +103,7 @@ allowed-tools: Read, Write, Bash, Glob, Agent
   - 写作备注（完整）
 - `style-rules.md` 超过 4000 字时，仅传递第一节至第八节，跳过第九节（正反示例）直接传递第十节（AI味检测清单）和第十一节（禁止总清单）
 - 前序正文截取规则：第 N-1 章取末尾 **800字**（保留完整段落），第 N-2 章取末尾 **300字**（保留完整段落）
+- context 文件处理：四个文件全量传入（预计总量 < 5000 字，无需截断）。若单个文件超过 3000 字，优先保留与本章大纲中出现的人名/地名相关的条目。
 
 将所有读取到的内容整理为"写作素材包"，供后续智能体使用。
 
