@@ -20,7 +20,7 @@ allowed-tools: Read, Write, Bash, Glob, Agent
 - 已完成章节（最近5个）：!`ls chapters/chapter-*.md 2>/dev/null | sort | tail -5 || echo "无已完成章节"`
 - 大纲章节文件：!`ls outline/chapter-*.md 2>/dev/null | sort || echo "无章节大纲"`
 - context 目录：!`test -d context && echo "EXISTS" || echo "MISSING"`
-- context 文件状态：!`for f in context/characters.md context/world.md context/continuity.md context/timeline.md; do test -f "$f" && echo "$f: EXISTS" || echo "$f: MISSING"; done 2>/dev/null || echo "context/ 目录不存在"`
+- context 文件状态：!`for f in context/characters.md context/world.md context/continuity.md context/timeline.md; do test -f "$f" && echo "$f: EXISTS" || echo "$f: MISSING"; done 2>/dev/null`
 
 ---
 
