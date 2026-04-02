@@ -55,7 +55,7 @@ claude
 
 ```bash
 # 克隆到你的小说目录（my-novel 改成你想要的名字）
-git clone https://github.com/YOUR_USERNAME/claude-novel-writeFlow.git my-novel
+git clone https://github.com/jinmawang/claude-novel-writeFlow.git my-novel
 cd my-novel
 
 # 用 Claude Code 打开
@@ -73,7 +73,7 @@ claude .
 cd /path/to/your-novel
 
 # 复制命令文件夹
-git clone https://github.com/YOUR_USERNAME/claude-novel-writeFlow.git /tmp/writeflow
+git clone https://github.com/jinmawang/claude-novel-writeFlow.git /tmp/writeflow
 cp -r /tmp/writeflow/.claude .
 rm -rf /tmp/writeflow
 
@@ -92,12 +92,20 @@ claude .
 ### 推荐工作流
 
 ```
-第一步：/style          → 设定写作风格
-第二步：/outline        → 创建小说大纲
-第三步：/write --auto   → 自动写作全书
-第四步：/status         → 查看写作进度
-第五步：/export         → 导出完整稿件
+第一步：/style          → 设定写作风格（只需做一次，后续所有章节都会遵守）
+第二步：/outline        → 创建小说大纲（先交互对话，或用 --auto 快速生成 5 个方案）
+第三步：/write --auto   → 自动写作全书（每章完成后会暂停，确认后才继续下一章）
+第四步：/status         → 查看写作进度（随时可运行，了解完成情况）
+第五步：/export         → 导出完整稿件（按章节顺序合并为单一文件）
 ```
+
+**新手建议：**
+
+1. **先跑 `/style`，再跑 `/outline`**——风格规范在写作时会被 Writer Agent 和 Style Reviewer 同时参考，越早定义越省后期返工。
+2. **`/outline --auto` 适合没有明确想法的状态**——4 路智能体头脑风暴会给你 5 个差异化方案，选一个改比从零构思省力得多。
+3. **每次 `/write` 后建议读一遍**——自动模式的每章暂停就是给你阅读和干预的机会，发现问题及时手动编辑章节文件，不必等全书写完。
+4. **大纲可以随时修改**——`outline/` 文件夹里的 `.md` 文件都是普通文本，直接编辑即可。用 `/outline --chapter=N` 可以重写单章细纲而不影响其他章节。
+5. **`/context` 首次引入时记得初始化**——如果项目已有多章内容再引入本工具，先运行 `/context` 提取存量上下文，否则 Continuity Reviewer 的比对会不准确。
 
 ---
 
@@ -296,19 +304,28 @@ your-novel-project/
 ## 💡 使用技巧
 
 **关于大纲细化程度**
-`/write` 写作时会同时读取当前章节及前后各 2 章的细纲。大纲写得越详细（尤其是"前后章衔接点"部分），写出来的章节过渡就越自然流畅。
+`/write` 写作时会同时读取当前章节及前后各 2 章的细纲。大纲写得越详细（尤其是"前后章衔接点"部分），写出来的章节过渡就越自然流畅。如果发现某章衔接生硬，优先检查大纲是否写清楚了，而不是反复 retry。
 
 **关于风格规范的 AI 味检测**
-`style-rules.md` 末尾的"AI味检测清单"会被 Style Reviewer 严格执行。如果你有特别敏感的 AI 感知点，可以手动编辑 `style-rules.md` 在清单中添加。
+`style-rules.md` 末尾的"AI味检测清单"会被 Style Reviewer 严格执行。如果你有特别敏感的 AI 感知点（比如"不要用"突然"开头"、"禁用排比句结尾"），可以手动编辑 `style-rules.md` 直接添加到清单中——下次写作立即生效。
 
 **关于字数控制**
-允许 ±500 字浮动，意味着 3000 字目标实际范围是 2500-3500 字。如果大纲该章节内容特别丰富，建议设置 `--words=4000` 避免压缩。
+允许 ±500 字浮动，意味着 3000 字目标实际范围是 2500-3500 字。如果大纲该章节内容特别丰富，建议设置 `--words=4000` 避免内容被压缩。反之，过渡章节可以用 `--words=2000` 控制节奏。
 
 **关于自动模式**
-`/write --auto` 每章完成后都会暂停确认，你可以随时叫停、阅读已完成章节后再继续，不会失控狂奔。
+`/write --auto` 每章完成后都会暂停确认，你可以随时叫停、阅读已完成章节后再继续，不会失控狂奔。如果你确实想无干预跑完全书，使用 `--auto --force`，但建议只在你对大纲非常有把握时使用。
 
 **关于上下文追踪**
 `context/` 文件夹由 `/write` 自动维护，记录正文中已确立的人物细节、世界设定、关键事件和时间线。Continuity Reviewer 会在每章审核时比对这些记录，防止前后矛盾。如果中途引入该功能（已有多章），记得先运行 `/context` 初始化存量章节的上下文。
+
+**关于单章重写**
+如果某章写完不满意，可以直接删除 `chapters/chapter-XX.md`，然后重新运行 `/write XX`，审核流程会完整重跑。如果只是想微调，直接手动编辑章节文件即可——`/write` 只会在对应文件不存在时创建，不会覆盖已有内容。
+
+**关于 `--no-review` 的适用场景**
+三智能体审核虽然质量更高，但每章耗时也更长。在**粗稿阶段**或**测试大纲可行性**时，可以先用 `--no-review` 快速产出初稿，确认故事走向后再删掉重写一遍走完整流程。
+
+**关于多设备或团队协作**
+本工具的所有产出（`outline/`、`style-rules.md`、`context/`、`chapters/`）都是纯文本文件，天然适合 Git 版本控制。建议把整个项目目录初始化为 Git 仓库，这样每次写作进度都有记录，随时可以回滚到任意版本。
 
 ---
 
