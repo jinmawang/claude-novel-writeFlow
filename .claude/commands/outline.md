@@ -61,9 +61,9 @@ allowed-tools: Read, Write, Bash, Agent, WebSearch
 - "与前后章的衔接"部分（承接第 N-1 章、埋伏第 N+1 章）
 - "章末钩子"
 
-使用 Write 工具保存至 `outline/chapter-NN.md`（两位数零填充）。
+使用 Write 工具保存至 `outline/chapter-NNN.md`（三位数零填充，使用 `printf "chapter-%03d.md" N` 格式化）。
 
-完成后告知用户："第 N 章大纲已保存至 `outline/chapter-NN.md`"。
+完成后告知用户："第 N 章大纲已保存至 `outline/chapter-NNN.md`"。
 
 ---
 
@@ -246,11 +246,13 @@ allowed-tools: Read, Write, Bash, Agent, WebSearch
 
 ## 章节总览
 
+<!-- CHAPTER_TABLE_START -->
 | 章节 | 标题 | 幕次 | 核心事件 | 情感基调 |
 |------|------|------|----------|----------|
 | 第1章 | [标题] | 第一幕 | [一句话] | [基调词] |
 | 第2章 | [标题] | 第一幕 | [一句话] | [基调词] |
 | ... | ... | ... | ... | ... |
+<!-- CHAPTER_TABLE_END -->
 
 ---
 
@@ -305,7 +307,7 @@ allowed-tools: Read, Write, Bash, Agent, WebSearch
 生成所有文件时：
 1. 先用 `Bash` 执行 `mkdir -p outline` 创建目录
 2. 写入 `outline/overview.md`
-3. 为每个章节写入对应的 `outline/chapter-XX.md`（两位数零填充，如 `chapter-01.md`）
+3. 为每个章节写入对应的 `outline/chapter-NNN.md`（三位数零填充，如 `chapter-001.md`）
 4. 全部写入完成后，告知用户文件位置和文件数量
 
 ---

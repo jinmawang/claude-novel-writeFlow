@@ -61,9 +61,9 @@ allowed-tools: Read, Write, Bash, Glob, Agent
 ## 第四步：确定目标章节
 
 **若指定了章节号 N**：
-- 检查 `outline/chapter-NN.md` 是否存在（格式：两位数零填充）
+- 检查 `outline/chapter-NNN.md` 是否存在（格式：三位数零填充）
 - 若不存在：询问用户是否要继续（该章无详细大纲，将依靠整体大纲写作）
-- 检查 `chapters/chapter-NN.md` 是否已存在
+- 检查 `chapters/chapter-NNN.md` 是否已存在
   - 手动模式：询问用户是否确认重写
   - 自动模式：直接覆盖
 
@@ -80,7 +80,7 @@ allowed-tools: Read, Write, Bash, Glob, Agent
 
 1. `outline/overview.md`（整体大纲，必读）
 2. `style-rules.md`（风格规范，若存在）
-3. `outline/chapter-NN.md`（本章大纲，若存在）
+3. `outline/chapter-NNN.md`（本章大纲，若存在）
 4. `outline/chapter-(N-2).md`（前2章大纲，若存在）
 5. `outline/chapter-(N-1).md`（前1章大纲，若存在）
 6. `outline/chapter-(N+1).md`（后1章大纲，若存在）
@@ -92,7 +92,7 @@ allowed-tools: Read, Write, Bash, Glob, Agent
 12. `context/continuity.md`（关键事件，若存在）
 13. `context/timeline.md`（故事时间线，若存在）
 
-> 路径格式：章节号 ≤ 99 用两位数零填充（`chapter-01.md`），章节号 ≥ 100 用三位数（`chapter-100.md`）。前序/后续章节路径同样遵循此规则。
+> **路径格式规则**：所有章节文件统一使用三位数零填充（`chapter-001.md`、`chapter-012.md`、`chapter-100.md`）。计算路径时使用 `printf "chapter-%03d.md" N` 格式化。
 
 **上下文长度控制（大型项目保护机制）：**
 - `outline/overview.md` 超过 3000 字时，仅提取以下部分传给 Agent：
@@ -100,6 +100,8 @@ allowed-tools: Read, Write, Bash, Glob, Agent
   - 人物档案（完整）
   - 故事结构（完整）
   - 章节总览：仅保留目标章节前后各 5 行（即第 N-5 到 N+5 章的总览记录）
+    - 截取方法：查找 `<!-- CHAPTER_TABLE_START -->` 和 `<!-- CHAPTER_TABLE_END -->` 标记，提取表格后按行过滤
+    - 若标记不存在，则查找 `## 章节总览` 标题后的表格内容
   - 写作备注（完整）
 - `style-rules.md` 超过 4000 字时，仅传递第一节至第八节，跳过第九节（正反示例）直接传递第十节（AI味检测清单）和第十一节（禁止总清单）
 - 前序正文截取规则：第 N-1 章取末尾 **800字**（保留完整段落），第 N-2 章取末尾 **300字**（保留完整段落）
@@ -322,10 +324,25 @@ Writer Agent 返回初稿后，**同时**启动以下两个审核智能体（在
 mkdir -p chapters
 ```
 
-将最终章节内容保存到 `chapters/chapter-NN.md`（两位数零填充，如 `chapter-01.md`、`chapter-12.md`；超过99章时自动升级为三位数）。
+将最终章节内容保存到 `chapters/chapter-NNN.md`（三位数零填充，使用 `printf "chapter-%03d.md" N` 格式化）。
 
-保存成功后告知用户：
-"✓ 第 N 章已保存至 `chapters/chapter-NN.md`（约 XXXX 字）"
+### 字数统计与验证
+
+使用 Bash 统计实际字数（中文字符数）：
+```bash
+wc -m chapters/chapter-NNN.md | awk '{print $1}'
+```
+
+**字数偏差判断规则**：
+- 目标字数：用户指定的 `--words=N` 值（默认3000）
+- 实际字数：统计结果
+- 偏差 = |实际字数 - 目标字数|
+- 容忍范围：±500字
+
+**偏差处理**：
+- 若偏差 ≤ 500字：告知用户"✓ 第 N 章已保存至 `chapters/chapter-NNN.md`（XXXX 字，目标 YYYY 字）"
+- 若偏差 > 500字且当前轮次 < 3：在下一轮审核反馈中添加"字数偏差较大（实际 XXXX 字，目标 YYYY 字），请调整内容长度"
+- 若偏差 > 500字且已达第3轮：告知用户"✓ 第 N 章已保存（XXXX 字，目标 YYYY 字，偏差 ±ZZZ 字）。如需调整可手动编辑或重新生成。"
 
 ---
 
@@ -348,6 +365,8 @@ mkdir -p context
 - `context/timeline.md`：写入 `# 故事时间线\n\n> 记录故事内的时间推进，避免时间矛盾。\n> 格式：\`- [chXX] 故事内时间点描述\``
 
 ### 启动 Context Extractor Agent
+
+**仅从最终保存的版本提取 context，不处理审核过程中的中间版本。**
 
 读取当前四个 context 文件的最新内容。
 
@@ -403,7 +422,7 @@ timeline.md 新内容：[完整文件内容或"无变更"]
 
 ### 错误处理
 
-若 Context Extractor Agent 调用失败：告知用户"上下文提取失败，章节已保存。可稍后运行 `/context` 手动更新。"，继续执行后续步骤，不中断写作流程。
+若 Context Extractor Agent 调用失败：告知用户"⚠️ context 自动更新失败（章节已保存）。建议稍后运行 `/context` 手动更新，以确保后续章节能获取本章的人物和世界设定变化。"，继续执行后续步骤，不中断写作流程。
 
 ---
 
